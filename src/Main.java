@@ -1,8 +1,15 @@
+/**
+ * Clase principal del programa
+ */
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Metodo principal
+ * Aqui inicia la ejecucion del programa.
+ */
 public class Main {
 
     public static void main(String[] args) {
@@ -54,12 +61,19 @@ public class Main {
     }
 
     
+    /**
+     * Metodo encargado de ejecutar la primera opcion del menu de opciones: Generar referencias y crear archivo.
+     * @param tamPagina tamano de la pagina en bytes que el usuario ingreso por parametro.
+     * @param numFilasMatriz1 numero de filas que tiene la matriz A (ingresado por el usuario).
+     * @param numColumnasMatriz1 numero de columnas que tiene la matriz A (ingresado por el usuario). Tambien corresponde al numero de filas de la matriz B.
+     * @param numColumnasMatriz2 numero de columnas que tiene la matriz B (ingresado por el usuario).
+     */
     private static void generarReferenciasArchivo(int tamPagina, int numFilasMatriz1, int numColumnasMatriz1, int numColumnasMatriz2) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("referencias.txt"))) {
             int numElementosMatriz1 = numFilasMatriz1 * numColumnasMatriz1;
             int numElementosMatriz2 = numColumnasMatriz1 * numColumnasMatriz2;
-            int numReferencias = numElementosMatriz1 + numElementosMatriz2;
-            int tamElemento = 4; 
+            int numReferencias = (numColumnasMatriz1*2+1)*numFilasMatriz1*numColumnasMatriz2;
+            int tamElemento = 4; //Enunciado
             int numPaginasMatriz1 = (int) Math.ceil((double) numElementosMatriz1 * tamElemento / tamPagina);
             int numPaginasMatriz2 = (int) Math.ceil((double) numElementosMatriz2 * tamElemento / tamPagina);
             int numPaginasTotales = numPaginasMatriz1 + numPaginasMatriz2;
