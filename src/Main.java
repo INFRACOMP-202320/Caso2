@@ -6,8 +6,8 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
 
+        Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Menú de opciones:");
             System.out.println("1. Generar referencias y crear archivo");
@@ -15,13 +15,16 @@ public class Main {
             System.out.println("3. Salir");
 
             System.out.print("Seleccione una opción: ");
-            int opcion = scanner.nextInt();
-
+            int opcion = 0;
+            try{
+                opcion = scanner.nextInt();
+            }catch(Exception e){
+                System.out.println("Error: Debe ingresar únicamente el número correspondiente a la opción que desea ejecutar. Vuelva a intentarlo");
+            }
             switch (opcion) {
                 case 1:
-                    // Opción 1: Generar referencias y crear archivo
                     try {
-                    	System.out.println("El documento 'referencias' se actualizara al colocar los datos.");
+                    	System.out.println("El documento 'referencias' se actualizara automáticamente al colocar los datos.");
                         System.out.print("Ingrese el tamaño de página (TP en bytes): ");
                         int tamPagina = scanner.nextInt();
                         System.out.print("Ingrese el número de filas de la matriz 1 (NF): ");
@@ -30,7 +33,6 @@ public class Main {
                         int numColumnasMatriz1 = scanner.nextInt();
                         System.out.print("Ingrese el número de columnas de la matriz 2 (NC2): ");
                         int numColumnasMatriz2 = scanner.nextInt();
-
                         
                         generarReferenciasArchivo(tamPagina, numFilasMatriz1, numColumnasMatriz1, numColumnasMatriz2);
                         System.out.println("Referencias generadas y archivo creado exitosamente.");
@@ -38,18 +40,15 @@ public class Main {
                         e.printStackTrace();
                         System.out.println("Error al generar referencias y archivo.");
                     }
-                case 2:
-                    // Opción 2: Calcular el número de fallas de página
-                case 3:
-                    // Opción 3: Salir
+                case 2:// Opción 2: Calcular el número de fallas de página
+
+                case 3: // Opción 3: Salir
+                    scanner.close();
                     System.exit(0);
                     break;
-
                 default:
                     System.out.println("Opción no válida. Por favor, seleccione una opción válida.");
                     break;
- 
-                
             }
         }
     }
