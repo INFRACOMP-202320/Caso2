@@ -12,18 +12,39 @@ public class Main {
      * ATRIBUTOS
      ************************************************************/
 
+    /**
+     * Tamano de un entero segun el enunciado (en Bytes).
+     */
     private static final int TAMANO_ELEMENTO = 4;
 
+    /**
+     * Tamano de una pagina en Bytes.
+     */
     private static int tamPagina;
 
+    /**
+     * Numero de filas en la matriz 1.
+     */
     private static int numFilasMatriz1;
 
+    /**
+     * Numero de columnas en la matriz 1 (tambien representa el numero de filas en la matriz 2).
+     */
     private static int numColumnasMatriz1;
 
+    /**
+     * Numero de columnas en la matriz 2.
+     */
     private static int numColumnasMatriz2;
 
+    /**
+     * Numero de paginas que ocupa la matriz 1
+     */
     private static int numPaginasMatriz1;
 
+    /**
+     * Numero de paginas que ocupa la matriz 2
+     */
     private static int numPaginasMatriz2;
 
 
@@ -68,6 +89,7 @@ public class Main {
                         System.out.println("Error al generar referencias y archivo.");
                     }
                 case 2:// Opción 2: Calcular el número de fallas de página
+                    System.out.println("Ingrese el numero de marcos de marcos de pagina a simular");
 
                 case 3: // Opción 3: Salir
                     scanner.close();
