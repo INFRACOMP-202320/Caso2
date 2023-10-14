@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -71,19 +68,20 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Menú de opciones:");
-            System.out.println("1. Generar referencias y crear archivo");
-            System.out.println("2. Opcion 2");
+            System.out.println("1. Crear archivo de referencias");
+            System.out.println("2. Calcular el número de fallas de página");
             System.out.println("3. Salir");
 
-            System.out.print("Seleccione una opción: ");
+            System.out.println("Seleccione una opción: ");
             int opcion = 0;
             try{
                 opcion = scanner.nextInt();
             }catch(Exception e){
-                System.out.println("Error: Debe ingresar únicamente el número correspondiente a la opción que desea ejecutar. Vuelva a intentarlo");
+                System.out.println("Error: debe ingresar un numero");
+                continue;
             }
             switch (opcion) {
-                case 1:
+                case 1: // Opción 1: Crear archivo de referencias.
                     try {
                         // parte 1: Generación de las referencias
                     	System.out.println("El documento 'referencias' se actualizara automáticamente al colocar los datos.");
@@ -96,28 +94,26 @@ public class Main {
                         System.out.print("Ingrese el número de columnas de la matriz 2 (NC2): ");
                         numColumnasMatriz2 = scanner.nextInt();
                         //Crea o actualiza el archivo referencias.txt:
+                        System.out.println("Generando archivo...");
                         generarArchivo();
                         System.out.println("Archivo referencias.txt creado exitosamente!");
 
-                        // parte 2: Calcular el número de fallas de página
-                        System.out.println("Ingrese el numero de marcos de pagina a simular");
-                        numMarcosPagina = scanner.nextInt();
-                        System.out.println("SIMULANDO...");
-                        int numFallas = simular();
-                        if(numFallas ==-1){
-                            scanner.close();
-                            System.exit(0);
-                        }else{
-                            System.out.println("# Fallas de pagina: "+ numFallas);
-                        }
                     } catch (Exception e) {
-                        scanner.close();
-                        System.out.println("Error en la lectura de los datos de entrada:\n\n");
-                        e.printStackTrace();
+                        System.out.println("Error. Debe ingresar un numero valido. \n\n");
+                        continue;
                     }
-                case 2:// Opción 2:
-
-
+                case 2:// Opción 2: Calcular el número de fallas de página
+                    try{
+                        System.out.println("Ingrese el numero de marcos de pagina:");
+                        numMarcosPagina = scanner.nextInt();
+                        System.out.print("Ingrese el nombre del archivo de referencias (incluya la extension, e.g: referencias.txt): ");
+                        String archivo = scanner.next();
+                        System.out.println("\n            SIMULANDO...");
+                        simular(archivo);
+                    }catch(Exception e){
+                        System.out.println("Error ingresando los datos para la simulacion.\n\n");
+                        continue;
+                    }
                 case 3: // Opción 3: Salir
                     scanner.close();
                     System.exit(0);
@@ -213,33 +209,14 @@ public class Main {
     }
 
 
-    public static int simular(){
-        int numFallas = 0;
-        Scanner scanner = new Scanner("referencias.txt");
+    public static void simular(String nomArchivo) {
         Pagina[] tablaPg = new Pagina[numPaginasMatriz1+numPaginasMatriz2+numPaginasMatriz3];
+        Pagina[] ram = new Pagina[numMarcosPagina];
         for (int i = 0; i < tablaPg.length; i++) {
             tablaPg[i] = new Pagina(i);
         }
 
-        while(scanner.hasNext()){
-            
-        }
-
-        // for (int i = 0; i < numFilasMatriz1; i++) {
-        //     for (int j = 0; j < numColumnasMatriz2; j++) {
-        //         for (int k = 0; k < numColumnasMatriz1; k++) {
-        //             rta = paginaVirtual(1,i,k);
-        //             writer.write("[A-"+i+"-"+k+"],"+rta[0]+","+rta[1]+"\n");
-        //             rta = paginaVirtual(2,k,j);
-        //             writer.write("[B-"+k+"-"+j+"],"+rta[0]+","+rta[1]+"\n");
-        //         }
-        //         rta = paginaVirtual(3,i,j);
-        //         writer.write("[C-"+i+"-"+j+"],"+rta[0]+","+rta[1]+"\n");
-        //     }
-        // }
-
-        return numFallas;
+        //Crear instancias de AdminTablas y Tanenbaun y mandarlas a correr (.start()).
     }
-
 
 }
