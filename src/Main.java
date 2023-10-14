@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -47,6 +50,16 @@ public class Main {
      */
     private static int numPaginasMatriz2;
 
+    /**
+     * Numero de paginas que ocupa la matriz 3
+     */
+    private static int numPaginasMatriz3;
+
+    /**
+     * Numero de marcos de pagina para la simulacion.
+     */
+    private static int numMarcosPagina;
+
 
     /**
      * Metodo principal
@@ -59,7 +72,7 @@ public class Main {
         while (true) {
             System.out.println("Menú de opciones:");
             System.out.println("1. Generar referencias y crear archivo");
-            System.out.println("2. Calcular el número de fallas de página");
+            System.out.println("2. Opcion 2");
             System.out.println("3. Salir");
 
             System.out.print("Seleccione una opción: ");
@@ -72,6 +85,7 @@ public class Main {
             switch (opcion) {
                 case 1:
                     try {
+                        // parte 1: Generación de las referencias
                     	System.out.println("El documento 'referencias' se actualizara automáticamente al colocar los datos.");
                         System.out.print("Ingrese el tamaño de página (TP en bytes): ");
                         tamPagina = scanner.nextInt();
@@ -81,15 +95,28 @@ public class Main {
                         numColumnasMatriz1 = scanner.nextInt();
                         System.out.print("Ingrese el número de columnas de la matriz 2 (NC2): ");
                         numColumnasMatriz2 = scanner.nextInt();
-                        
-                        generarReferenciasArchivo();
-                        System.out.println("Referencias generadas y archivo creado exitosamente.");
+                        //Crea o actualiza el archivo referencias.txt:
+                        generarArchivo();
+                        System.out.println("Archivo referencias.txt creado exitosamente!");
+
+                        // parte 2: Calcular el número de fallas de página
+                        System.out.println("Ingrese el numero de marcos de pagina a simular");
+                        numMarcosPagina = scanner.nextInt();
+                        System.out.println("SIMULANDO...");
+                        int numFallas = simular();
+                        if(numFallas ==-1){
+                            scanner.close();
+                            System.exit(0);
+                        }else{
+                            System.out.println("# Fallas de pagina: "+ numFallas);
+                        }
                     } catch (Exception e) {
+                        scanner.close();
+                        System.out.println("Error en la lectura de los datos de entrada:\n\n");
                         e.printStackTrace();
-                        System.out.println("Error al generar referencias y archivo.");
                     }
-                case 2:// Opción 2: Calcular el número de fallas de página
-                    System.out.println("Ingrese el numero de marcos de marcos de pagina a simular");
+                case 2:// Opción 2:
+
 
                 case 3: // Opción 3: Salir
                     scanner.close();
@@ -102,15 +129,10 @@ public class Main {
         }
     }
 
-    
     /**
      * Metodo encargado de ejecutar la primera opcion del menu de opciones: Generar referencias y crear archivo.
-     * @param tamPagina tamano de la pagina en bytes que el usuario ingreso por parametro.
-     * @param numFilasMatriz1 numero de filas que tiene la matriz A (ingresado por el usuario).
-     * @param numColumnasMatriz1 numero de columnas que tiene la matriz A (ingresado por el usuario). Tambien corresponde al numero de filas de la matriz B.
-     * @param numColumnasMatriz2 numero de columnas que tiene la matriz B (ingresado por el usuario).
      */
-    private static void generarReferenciasArchivo() {
+    private static void generarArchivo() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("referencias.txt"))) {
 
             int numElementosMatriz1 = numFilasMatriz1 * numColumnasMatriz1;
@@ -121,7 +143,7 @@ public class Main {
             aux = numElementosMatriz2*TAMANO_ELEMENTO/tamPagina;
             numPaginasMatriz2 = (int) Math.ceil(aux);
             aux = numFilasMatriz1*numColumnasMatriz2*TAMANO_ELEMENTO/tamPagina;
-            int numPaginasMatriz3 = (int) Math.ceil(aux);
+            numPaginasMatriz3 = (int) Math.ceil(aux);
             int numPaginasTotales = numPaginasMatriz1 + numPaginasMatriz2 + numPaginasMatriz3;
 
             //comienza escritura del archivo:
@@ -189,4 +211,35 @@ public class Main {
         }
         return rta;
     }
+
+
+    public static int simular(){
+        int numFallas = 0;
+        Scanner scanner = new Scanner("referencias.txt");
+        Pagina[] tablaPg = new Pagina[numPaginasMatriz1+numPaginasMatriz2+numPaginasMatriz3];
+        for (int i = 0; i < tablaPg.length; i++) {
+            tablaPg[i] = new Pagina(i);
+        }
+
+        while(scanner.hasNext()){
+            
+        }
+
+        // for (int i = 0; i < numFilasMatriz1; i++) {
+        //     for (int j = 0; j < numColumnasMatriz2; j++) {
+        //         for (int k = 0; k < numColumnasMatriz1; k++) {
+        //             rta = paginaVirtual(1,i,k);
+        //             writer.write("[A-"+i+"-"+k+"],"+rta[0]+","+rta[1]+"\n");
+        //             rta = paginaVirtual(2,k,j);
+        //             writer.write("[B-"+k+"-"+j+"],"+rta[0]+","+rta[1]+"\n");
+        //         }
+        //         rta = paginaVirtual(3,i,j);
+        //         writer.write("[C-"+i+"-"+j+"],"+rta[0]+","+rta[1]+"\n");
+        //     }
+        // }
+
+        return numFallas;
+    }
+
+
 }
