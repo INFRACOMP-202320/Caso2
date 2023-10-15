@@ -30,7 +30,7 @@ public class Pagina {
     private int id;
 
     /**
-     * Indica si la pagina esta ocupado un marco de pagina (esta en memoria real)
+     * Indica si la pagina esta ocupando un marco de pagina (esta en memoria real)
      */
     private boolean mp;
 

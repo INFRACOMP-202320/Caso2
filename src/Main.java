@@ -96,12 +96,12 @@ public class Main {
                         //Crea o actualiza el archivo referencias.txt:
                         System.out.println("Generando archivo...");
                         generarArchivo();
-                        System.out.println("Archivo referencias.txt creado exitosamente!");
-
+                        System.out.println("Archivo referencias.txt creado exitosamente!\n");
                     } catch (Exception e) {
                         System.out.println("Error. Debe ingresar un numero valido. \n\n");
                         continue;
                     }
+                    break;
                 case 2:// Opción 2: Calcular el número de fallas de página
                     try{
                         System.out.println("Ingrese el numero de marcos de pagina:");
@@ -114,6 +114,7 @@ public class Main {
                         System.out.println("Error ingresando los datos para la simulacion.\n\n");
                         continue;
                     }
+                    break;
                 case 3: // Opción 3: Salir
                     scanner.close();
                     System.exit(0);
