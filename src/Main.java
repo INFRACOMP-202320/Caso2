@@ -1,6 +1,8 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
 
 /**
@@ -65,8 +67,10 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
+        // Scanner scanner = new Scanner(System.in);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        boolean salir = false;
+        while (!salir) {
             System.out.println("Menú de opciones:");
             System.out.println("1. Crear archivo de referencias");
             System.out.println("2. Calcular el número de fallas de página");
@@ -75,9 +79,9 @@ public class Main {
             System.out.println("Seleccione una opción: ");
             int opcion = 0;
             try{
-                opcion = scanner.nextInt();
+                opcion = Integer.parseInt(reader.readLine());
             }catch(Exception e){
-                System.out.println("Error: debe ingresar un numero");
+                System.out.println("Error: debe ingresar un numero\n");
                 continue;
             }
             switch (opcion) {
@@ -85,42 +89,41 @@ public class Main {
                     try {
                         // parte 1: Generación de las referencias
                     	System.out.println("El documento 'referencias' se actualizara automáticamente al colocar los datos.");
-                        System.out.print("Ingrese el tamaño de página (TP en bytes): ");
-                        tamPagina = scanner.nextInt();
-                        System.out.print("Ingrese el número de filas de la matriz 1 (NF): ");
-                        numFilasMatriz1 = scanner.nextInt();
-                        System.out.print("Ingrese el número de columnas de la matriz 1 (NC1, y filas de la matriz 2): ");
-                        numColumnasMatriz1 = scanner.nextInt();
-                        System.out.print("Ingrese el número de columnas de la matriz 2 (NC2): ");
-                        numColumnasMatriz2 = scanner.nextInt();
+                        System.out.println("Ingrese el tamaño de página (TP en bytes): ");
+                        tamPagina = Integer.parseInt(reader.readLine());
+                        System.out.println("Ingrese el número de filas de la matriz 1 (NF): ");
+                        numFilasMatriz1 = Integer.parseInt(reader.readLine());
+                        System.out.println("Ingrese el número de columnas de la matriz 1 (NC1, y filas de la matriz 2): ");
+                        numColumnasMatriz1 = Integer.parseInt(reader.readLine());
+                        System.out.println("Ingrese el número de columnas de la matriz 2 (NC2): ");
+                        numColumnasMatriz2 = Integer.parseInt(reader.readLine());
                         //Crea o actualiza el archivo referencias.txt:
                         System.out.println("Generando archivo...");
                         generarArchivo();
                         System.out.println("Archivo referencias.txt creado exitosamente!\n");
                     } catch (Exception e) {
-                        System.out.println("Error. Debe ingresar un numero valido. \n\n");
+                        System.out.println("Error. Debe ingresar un numero valido. \n");
                         continue;
                     }
                     break;
                 case 2:// Opción 2: Calcular el número de fallas de página
                     try{
-                        System.out.println("Ingrese el numero de marcos de pagina:");
-                        numMarcosPagina = scanner.nextInt();
-                        System.out.print("Ingrese el nombre del archivo de referencias (incluya la extension, e.g: referencias.txt): ");
-                        String archivo = scanner.next();
+                        System.out.println("Ingrese el numero de marcos de pagina: ");
+                        numMarcosPagina = Integer.parseInt(reader.readLine());
+                        System.out.println("Ingrese el nombre del archivo de referencias (incluya la extension, e.g: referencias.txt): ");
+                        String archivo = reader.readLine();
                         System.out.println("\n            SIMULANDO...");
                         simular(archivo);
                     }catch(Exception e){
-                        System.out.println("Error ingresando los datos para la simulacion.\n\n");
+                        System.out.println("Error ingresando los datos para la simulacion.\n");
                         continue;
                     }
                     break;
                 case 3: // Opción 3: Salir
-                    scanner.close();
-                    System.exit(0);
+                    salir = true;
                     break;
                 default:
-                    System.out.println("Opción no válida. Por favor, seleccione una opción válida.");
+                    System.out.println("Opción no válida. Por favor, seleccione una opción válida.\n");
                     break;
             }
         }
@@ -135,11 +138,11 @@ public class Main {
             int numElementosMatriz1 = numFilasMatriz1 * numColumnasMatriz1;
             int numElementosMatriz2 = numColumnasMatriz1 * numColumnasMatriz2;
             int numReferencias = (numColumnasMatriz1*2+1)*numFilasMatriz1*numColumnasMatriz2;
-            double aux = numElementosMatriz1*TAMANO_ELEMENTO/tamPagina;
+            double aux = (double) numElementosMatriz1*TAMANO_ELEMENTO/tamPagina;
             numPaginasMatriz1 = (int) Math.ceil(aux);
-            aux = numElementosMatriz2*TAMANO_ELEMENTO/tamPagina;
+            aux = (double) numElementosMatriz2*TAMANO_ELEMENTO/tamPagina;
             numPaginasMatriz2 = (int) Math.ceil(aux);
-            aux = numFilasMatriz1*numColumnasMatriz2*TAMANO_ELEMENTO/tamPagina;
+            aux = (double) numFilasMatriz1*numColumnasMatriz2*TAMANO_ELEMENTO/tamPagina;
             numPaginasMatriz3 = (int) Math.ceil(aux);
             int numPaginasTotales = numPaginasMatriz1 + numPaginasMatriz2 + numPaginasMatriz3;
 
@@ -191,19 +194,19 @@ public class Main {
     public static int[] paginaVirtual(int numMatriz, int fila, int col){
      
         int[] rta = new int[2];
-        double aux = 0.0;
+        int aux;
         if(numMatriz==1){//primera en almacenarse (matriz A o 1)
-            aux = (fila*numColumnasMatriz1*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col)/tamPagina;
-            rta[0] = (int) Math.ceil(aux);
-            rta[1] = fila*numColumnasMatriz1*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col - rta[0]*tamPagina;
-        }else if(numMatriz==2){//segunda 
-            aux = (fila*numColumnasMatriz2*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col)/tamPagina;
-            rta[0] = numPaginasMatriz1 + (int) Math.ceil(aux);
-            rta[1] = numPaginasMatriz1*tamPagina + fila*numColumnasMatriz2*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col - rta[0]*tamPagina;
+            aux = fila*numColumnasMatriz1*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col;
+            rta[0] = aux/tamPagina; //division entera
+            rta[1] = aux - rta[0]*tamPagina;
+        }else if(numMatriz==2){//segunda
+            aux = fila*numColumnasMatriz2*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col;
+            rta[0] = numPaginasMatriz1 + aux/tamPagina;
+            rta[1] = numPaginasMatriz1*tamPagina + aux - rta[0]*tamPagina;
         }else{ //tercera
-            aux = (fila*numColumnasMatriz2*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col)/tamPagina;
-            rta[0] = (int) Math.ceil(aux);
-            rta[1] = fila*numColumnasMatriz2*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col - rta[0]*tamPagina;
+            aux = fila*numColumnasMatriz2*TAMANO_ELEMENTO + TAMANO_ELEMENTO*col;
+            rta[0] = aux/tamPagina;
+            rta[1] = aux - rta[0]*tamPagina;
             rta[0] += (numPaginasMatriz1 + numPaginasMatriz2);
         }
         return rta;
