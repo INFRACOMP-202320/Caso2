@@ -70,7 +70,8 @@ public class Main {
         // Scanner scanner = new Scanner(System.in);
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         boolean salir = false;
-        while (!salir) {
+        boolean mostrarMenu = true;
+        while (!salir && mostrarMenu == true) {
             System.out.println("Menú de opciones:");
             System.out.println("1. Crear archivo de referencias");
             System.out.println("2. Calcular el número de fallas de página");
@@ -108,12 +109,14 @@ public class Main {
                     break;
                 case 2:// Opción 2: Calcular el número de fallas de página
                     try{
+                    	mostrarMenu = false;
                         System.out.println("Ingrese el numero de marcos de pagina: ");
                         numMarcosPagina = Integer.parseInt(reader.readLine());
                         System.out.println("Ingrese el nombre del archivo de referencias (incluya la extension, e.g: referencias.txt): ");
                         String archivo = reader.readLine();
                         System.out.println("\n            SIMULANDO...");
-                        simular(archivo);
+                        Monitor monitor = new Monitor();
+                        monitor.initMacros(archivo, numMarcosPagina);
                     }catch(Exception e){
                         System.out.println("Error ingresando los datos para la simulacion.\n");
                         continue;
@@ -212,15 +215,5 @@ public class Main {
         return rta;
     }
 
-
-    public static void simular(String nomArchivo) {
-        Pagina[] tablaPg = new Pagina[numPaginasMatriz1+numPaginasMatriz2+numPaginasMatriz3];
-        Pagina[] ram = new Pagina[numMarcosPagina];
-        for (int i = 0; i < tablaPg.length; i++) {
-            tablaPg[i] = new Pagina(i);
-        }
-
-        //Crear instancias de AdminTablas y Tanenbaun y mandarlas a correr (.start()).
-    }
 
 }

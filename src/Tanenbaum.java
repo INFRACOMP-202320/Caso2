@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 
 /**
  * Thread encargado de ejecutar el algoritmo de envejecimiento cada 1 milisegundo.
@@ -8,7 +9,7 @@ public class Tanenbaum extends Thread{
     /**
      * Representa la memoria real.
      */
-    private Pagina[] ram;
+    private Monitor monitor;
 
 
     /**
@@ -16,15 +17,28 @@ public class Tanenbaum extends Thread{
      * @param ram estructura de tipo {@code Pagina[]} que representa la
      * memoria real.
      */
-    public Tanenbaum(Pagina[] ram){
+    public Tanenbaum(Monitor monitorThreads){
 
-        this.ram = ram;
+        this.monitor = monitorThreads;
     }
 
 
 
     public void run(){
         //envejece y rejuvenece las paginas, cada milisegundo
-    }
+    	while(monitor.getFinished() == false) {
+    		
+    		monitor.sincronizacion();
+        		try {
+    				sleep(1);
+    			} catch (InterruptedException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+    			
+    		}
+    		
+    	}
+    	
     
 }

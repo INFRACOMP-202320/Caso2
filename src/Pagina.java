@@ -1,4 +1,3 @@
-
 /**
  * Representa una pagina.
  * Se asume que, como en la practica, el tamano de un marco de pagina = tamano de una pagina virtual
@@ -8,9 +7,9 @@
 public class Pagina {
 
 
-    /*****************************************************************
+    /***********************
      *                          ATRIBUTOS
-     *****************************************************************/
+     ***********************/
 
     /**
      * Indica si la pagina fue referenciada en algun punto en el ciclo de reloj actual.
@@ -29,11 +28,6 @@ public class Pagina {
      */
     private int id;
 
-    /**
-     * Indica si la pagina esta ocupando un marco de pagina (esta en memoria real)
-     */
-    private boolean mp;
-
 
     /**
      * Construye una pagina y le asigna el id dado por parametro
@@ -45,12 +39,11 @@ public class Pagina {
         this.R = false;
         this.contador = 0;
         this.id = id;
-        this.mp = false;
     }
 
-    /*****************************************************************
+    /***********************
      *                           METODOS
-     *****************************************************************/
+     ***********************/
 
     /**
      * @return {@code true} si la pagina ha sido referenciada en algun punto durante el presente ciclo de reloj,
@@ -75,6 +68,13 @@ public class Pagina {
     public Integer getContador() {
         return contador;
     }
+    
+    /**
+     * @return el valor del indicador de envejecimiento de esta pagina.
+     */
+    public void setContadorCero() {
+        contador = 0;
+    }
 
     /**
      * Envejece este contador aplicando un right shift logico (>>>) el cual inserta
@@ -83,7 +83,7 @@ public class Pagina {
      * (el de mas a la derecha). 
      */
     public void envejecer() {
-        this.contador = contador >>> 1;
+        this.contador = contador >> 1;
     }
 
     /**
@@ -95,8 +95,8 @@ public class Pagina {
      * mas significativo, que en este caso es 2^31 porque el contador es un entero.
      */
     public void rejuvenecer(){
-        this.contador = contador >>>1;
-        this.contador += 2^31;
+        this.contador = contador >> 1;
+        this.contador += 2^30;
     }
 
     /**
@@ -105,24 +105,6 @@ public class Pagina {
      */
     public int getId() {
         return id;
-    }
-
-    /**
-     * Indica si la pagina actual se encuentra en memoria real o no.
-     * @return {@code true} si esta en memoria real, {@code false} si no.
-     * mp = Marco de Pagina (si esta en marco de pagina es porque esta en memoria real).
-     */
-    public boolean isMp() {
-        return mp;
-    }
-
-    /**
-     * Actualiza el valor de {@code mp} a {@code true} si la pagina se movio a un marco de pagina,
-     * o {@code false} si se saco de un marco de pagina (y se paso a memoria virtual) 
-     * @param mp booleano que representa si la pagina actual esta en marco de pagina o no.
-     */
-    public void setMp(boolean mp) {
-        this.mp = mp;
     }
      
     

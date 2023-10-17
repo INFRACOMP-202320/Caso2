@@ -1,5 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Representa el thread encargado de ir actualizando el estado de la tabla de p√°ginas y
@@ -11,34 +14,27 @@ public class AdminTablas extends Thread{
     /**
      * Representa la tabla de paginas
      */
-    private Pagina[] tp;
-
-    /**
-     * Representa la memoria real
-     */
-    private Pagina[] ram;
+    //private ArrayList<Pagina> paginas;
     
     /**
      * Nombre del archivo con las referencias.
      */
     private String nomArchivo;
-
+    
     /**
-     * tamano de la memoria real.
+     * Monitor que maneja las operaciones
      */
-    private int numMarcosPagina;
-
+    private Monitor monitor;
+    
     /**
      * Constructor del administrador de tablas.
      * @param tp estructura de tipo {@code Pagina[]} que representa la tabla de paginas.
      * @param ram estructura de tipo {@code Pagina[]} que representa la memoria real.
      * @param nomArchivo nombre del archivo con las referencias.
      */
-    public AdminTablas(Pagina[] tp, Pagina[] ram, String nomArchivo, int numMarcosPagina){
-        this.tp = tp;
-        this.ram = ram;
+    public AdminTablas(String nomArchivo, Monitor monitorThreads){
         this.nomArchivo = nomArchivo;
-        this.numMarcosPagina = numMarcosPagina;
+        this.monitor = monitorThreads;
     }
 
 
@@ -50,58 +46,70 @@ public class AdminTablas extends Thread{
      * rta[1] = posicion del marco de pagina en ram donde se encuentra la pagina
      * que debe ser reemplazada.
      */
-    public int[] buscarPgMasVieja(){
-
-        int[] rta = new int[2];
-        rta[0] =-1;
-        rta[1] = -1;
-        int contadorMasViejo = Integer.MAX_VALUE;
-        for (int i = 0; i < ram.length; i++) {
-            if(ram[i].getContador() <= contadorMasViejo){
-                 rta[0] = ram[i].getId();
-                 rta[1] = i;
-                contadorMasViejo = ram[i].getContador();
-            }
-        }
-        return rta;
-    }
 
 
 
     public void run(){
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(nomArchivo))){
-            int numFallas = 0;
-            String ref;
+        try (BufferedReader br = new BufferedReader(new FileReader(nomArchivo))){
             int aux = 1;
+            ArrayList<Pagina> paginas = monitor.getPaginas();
+            HashMap <Pagina, Integer> tablaPg = monitor.getTablaPg();
+            int numeroMarcosPaginas = monitor.getNumMarcosPagina();
             // lee el archivo cargando las referencias una por una.
-            while((ref = reader.readLine())!=null){
-                if(aux>6){ //referencias empiezan a partir de la fila 7 en el archivo.
+            while((br.readLine())!=null){
+            	if(aux>6) {
+            		//tomar numero pagina de referencia
+            		int numPag =Integer.parseInt(br.readLine().split(",")[1]);
+            		
+            		//tomar pagina
+            		int buscar = tablaPg.get(paginas.get(numPag));
+            		//si no esta en la tabla de paginas::
+            		
+            		if(buscar==-1){
+            			//inc en numero de fallas
+            			monitor.incFallas();
+            			if(monitor.getRam().size()<numeroMarcosPaginas) {
+            				int posicionAdd = monitor.addPaginaRam(numPag);
+            				tablaPg.replace(paginas.get(numPag), posicionAdd);
 
-                    String[] data = ref.split(",");
-                    int numPV = Integer.parseInt(data[1]);
-
-                    if(tp[numPV].isMp()==false){ //fallo de pagina
-                        numFallas++;
-                        //algoritmo de envejecimiento
-                        if(ram.length == numMarcosPagina){ //ram llena, se debe reemplazar un pagina.
-                            int[] rta = buscarPgMasVieja(); //rta[0]= id de pagina a reemplazar. rta[1] = posicion del marco de pagina en ram.
-                            ram[rta[1]].setMp(false); // cambia el flag de la pagina antes de sacarla
-                            ram[rta[1]] = tp[rta[0]]; // saca la pagina vieja de la ram e inserta la necesitada.
-                            tp[rta[0]].setMp(true); // marca la pagina recien insertada como tal.
-                        }
-                    } 
+            			}else {//Inicializacion de memoria
+            				int[] tuplaPagina = monitor.intercambio(numPag);
+            				paginas.get(tuplaPagina[0]).setContadorCero();
+            				tablaPg.replace(paginas.get(tuplaPagina[0]),-1);
+            				tablaPg.replace(paginas.get(numPag), tuplaPagina[1]);
+            			}
+                    
+            		}
+            		
+            		else{
+            			monitor.syncR(buscar);
                 }
-                aux++;
-                sleep(2);
+                try {
+                    sleep(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                
             }
-            reader.close();
-            System.out.println("# Fallas de Pagina: "+ numFallas);
-        } catch (Exception e) {
-            System.out.println("Ocurrio un problema durante la ejecucion del administrador de tablas:");
-            e.printStackTrace();
+            	
+            aux++;
+            
+
         }
+            
+            monitor.setFinished();
+            br.close();
+            System.out.println("El n˙mero de fallos de pagina es: "+ monitor.getFallas());    
+            
+        }
+            
+            catch (IOException e) {
+            e.printStackTrace();
+            }
        
     }
+    
+    
 
 }
