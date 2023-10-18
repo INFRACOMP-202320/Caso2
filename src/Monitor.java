@@ -10,7 +10,7 @@ public class Monitor {
 	
 	private ArrayList<Pagina> ram;
 	
-	private HashMap<Pagina, Integer> tablaPg;
+	private HashMap<Integer, Integer> tablaPg;
 	
 	private boolean finished;
 	
@@ -19,75 +19,60 @@ public class Monitor {
 	private int numMarcosPagina;
 	
 	public Monitor() {
-		
+
 		this.ram = new ArrayList<Pagina>();
 		this.paginas = new ArrayList<Pagina>();
-		this.tablaPg = new HashMap<Pagina, Integer>();
+		this.tablaPg = new HashMap<Integer, Integer>();
 		this.finished = false;
 		this.fallas = 0;
-		
 	}
 	
     public void initMacros(String nomArchivo, int numMarcosPagina) throws IOException {
-    	
-    	//numPag
-    	//numero de paginas
+
+    	//numero de marcos de pagina (tamano de la Ram)
     	this.numMarcosPagina=numMarcosPagina;
-        
         //Inicializacion
-        FileReader fr = new FileReader(nomArchivo);
-        BufferedReader br = new BufferedReader(fr);
+        BufferedReader br = new BufferedReader(new FileReader(nomArchivo));
         br.readLine();
         br.readLine();
         br.readLine();
         br.readLine();
-        int nr = Integer.parseInt((br.readLine().split("="))[1].trim());
+        br.readLine();
         int np = Integer.parseInt((br.readLine().split("="))[1].trim());
-        
+        br.close();
+        //Inicializa la tabla de paginas
         for (int i = 0; i < np; i++) {
         	Pagina pag = new Pagina(i);
             this.paginas.add(pag);
-            this.tablaPg.put(pag, -1);
+            this.tablaPg.put(pag.getId(), -1);
         }
-        
-        /*for(int i = 0; i < numMarcosPagina; i++) {
-    		int numPag =Integer.parseInt(br.readLine().split(",")[1]);
-    		Pagina pagina = paginas.get(numPag);
-    		this.ram.add(pagina);
-    		this.tablaPg.put(pagina, i);
-    		pagina.setR(true);
-        }*/
-
-
         //Crear instancias de AdminTablas y Tanenbaun y mandarlas a correr (.start()).
-        
-        AdminTablas adminTablas = new AdminTablas(nomArchivo, this);
+        Algoritmo adminTablas = new Algoritmo(nomArchivo, this);
         adminTablas.start();
-        
         Tanenbaum tanenbaum = new Tanenbaum(this);
         tanenbaum.start();
-        
-        br.close();
-        fr.close();
     }
     
+    /**
+     * @return el numero de marcos de pagina.
+     */
     public int getNumMarcosPagina() {
     	return this.numMarcosPagina;
     }
 	
-    public HashMap<Pagina, Integer> getTablaPg(){
+    /**
+     * @return la tabla de paginas.
+     */
+    public HashMap<Integer, Integer> getTablaPg(){
         return this.tablaPg;
     }
     
-    public void setTabla(HashMap<Pagina, Integer> tabla){
-        this.tablaPg=tabla;
-    }
-    
-    public boolean getFinished(){
+
+    public synchronized boolean getFinished(){
         return this.finished;
     }
 	
-    public void setFinished(){
+    public synchronized void setFinished(){
         this.finished=true;
     }
     
@@ -95,36 +80,44 @@ public class Monitor {
     	return this.paginas;
     }
     
-    public synchronized int[] intercambio(int numPagina){
 
-        int[] rta = new int[2];
+    /**
+     * Busca la pagina mas vieja para reemplazarla por la pagina entrante
+     * Se ejecuta solo cuando ocurre un fallo de pagina y la ram esta llena.
+     * rta[0]= id de pagina a reemplazar y rta[1] = posicion del marco de pagina
+     * en ram donde se encuentra la pagina
+     * que debe ser reemplazada.
+     */
+    public synchronized void intercambio(int numPagina){
+
+        int idPag = -1;
+        int posPagRam = -1;
         int maximo = Integer.MAX_VALUE;
         for (int i = 0; i < ram.size(); i++) {
-            if(ram.get(i).getContador() <= maximo){
-                 rta[0] = ram.get(i).getId(); //id pagina
-                 rta[1] = i; // posicion ram
+            if(ram.get(i).isR()){continue;}
+            
+            if(ram.get(i).getContador() < maximo){
+                idPag = ram.get(i).getId(); //id pagina
+                posPagRam = i; // posicion ram
                 maximo = ram.get(i).getContador();
             }
         }
-        
-        setRam(rta[1], numPagina);
+        // Saca la pagina mas vieja:
+        paginas.get(idPag).setContadorCero();
+        tablaPg.replace(idPag,-1);
+        // Mete la pagina solicitada a ram:
+        ram.set(posPagRam, paginas.get(numPagina));
         paginas.get(numPagina).setR(true);
-        paginas.get(rta[0]).setContadorCero();
-        
-        return rta;
+        tablaPg.replace(numPagina, ram.size()-1);
     }
     
     
     
-    public synchronized int addPaginaRam(int numPag) {
+    public synchronized void addPaginaRam(int numPag) {
     	Pagina pagina = paginas.get(numPag);
     	pagina.setR(true);
     	ram.add(pagina);
-    	return ram.size()-1;
-    }
-    
-    public void setRam(int info, int numPagina) {
-    	ram.set(info, paginas.get(numPagina));
+        tablaPg.replace(numPag, ram.size()-1);
     }
     
     public ArrayList<Pagina> getRam(){
@@ -139,38 +132,30 @@ public class Monitor {
     	return fallas;
     }
     
-    public synchronized void syncR(int numPagina) {
-    	Pagina pagina = ram.get(numPagina);
-    	pagina.setR(true);
-    	ram.set(numPagina, pagina);
+    public synchronized void syncR(int idPag) {
+        paginas.get(idPag).setR(true);
     }
     
     public synchronized void sincronizacion() {
-    	
-    	for(int i = 0; i < ram.size(); i++) {
-    		
-    		Pagina pagina = ram.get(i);
-    		boolean ref = pagina.isR();
-    		if(ref) {
-    			pagina.rejuvenecer();
-    			ram.set(i, pagina);
-    		}
-    		
-    		else {
-    			pagina.envejecer();
-    			ram.set(i, pagina);
-    		}
-    	}
-    	
-    	enCero();
-    }
-    
-    public void enCero() {
     	for(int i = 0; i < ram.size(); i++) {
     		Pagina pagina = ram.get(i);
-    		pagina.setR(false);
-    		ram.set(i, pagina);
+    		if(pagina.isR()){
+                pagina.rejuvenecer();
+                pagina.setR(false);
+            }else{
+                pagina.envejecer();
+            }
     	}
     }
-	
+
+
+    /**
+     * Determina si una pagina esta en ram o no.
+     * @param idPag id de la pagina que se quiere saber si esta o no en ram.
+     * @return {@code true} si la pagina esta en ram {@code false} de lo contrario.
+     */
+    public boolean estaEnRam(int idPag){
+        return tablaPg.get(idPag)!=-1;
+    }
+
 }

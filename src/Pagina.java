@@ -8,7 +8,7 @@ public class Pagina {
 
 
     /***********************
-     *                          ATRIBUTOS
+     *     ATRIBUTOS
      ***********************/
 
     /**
@@ -42,14 +42,14 @@ public class Pagina {
     }
 
     /***********************
-     *                           METODOS
+     *       METODOS
      ***********************/
 
     /**
      * @return {@code true} si la pagina ha sido referenciada en algun punto durante el presente ciclo de reloj,
      * {@code false} de lo contrario.
      */
-    public boolean isR() {
+    public synchronized boolean isR() {
         return R;
     }
 
@@ -58,21 +58,21 @@ public class Pagina {
      * {@code false} de lo contrario.
      * @param r booleano que indica si la pagina se ha referenciado en el presente ciclo de reloj o no.
      */
-    public void setR(boolean r) {
+    public synchronized void setR(boolean r) {
         R = r;
     }
 
     /**
      * @return el valor del indicador de envejecimiento de esta pagina.
      */
-    public Integer getContador() {
+    public synchronized Integer getContador() {
         return contador;
     }
     
     /**
      * @return el valor del indicador de envejecimiento de esta pagina.
      */
-    public void setContadorCero() {
+    public synchronized void setContadorCero() {
         contador = 0;
     }
 
@@ -82,8 +82,8 @@ public class Pagina {
      * todos los bits 1 unidad a la derecha, desechando el valor del bit menos significativo
      * (el de mas a la derecha). 
      */
-    public void envejecer() {
-        this.contador = contador >> 1;
+    public synchronized void envejecer() {
+        this.contador = contador >>> 1;
     }
 
     /**
@@ -94,9 +94,9 @@ public class Pagina {
      * Para esto, primero se ejecuta un right shift logico a la derecha (>>>) y luego se le suma el valor del bit
      * mas significativo, que en este caso es 2^31 porque el contador es un entero.
      */
-    public void rejuvenecer(){
-        this.contador = contador >> 1;
-        this.contador += 2^30;
+    public synchronized void rejuvenecer(){
+        int rS = contador >>> 1;
+       this.contador = rS | 2^30;
     }
 
     /**
