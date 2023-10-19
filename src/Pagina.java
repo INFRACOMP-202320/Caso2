@@ -96,7 +96,7 @@ public class Pagina {
      */
     public synchronized void rejuvenecer(){
         int rS = contador >>> 1;
-       this.contador = rS | 2^30;
+        this.contador = rS | (1 << 30);
     }
 
     /**

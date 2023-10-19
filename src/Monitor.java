@@ -93,9 +93,8 @@ public class Monitor {
         int idPag = -1;
         int posPagRam = -1;
         int maximo = Integer.MAX_VALUE;
-        for (int i = 0; i < ram.size(); i++) {
+        for (int i = 0; i < ram.size() && maximo!=0; i++) {
             if(ram.get(i).isR()){continue;}
-            
             if(ram.get(i).getContador() < maximo){
                 idPag = ram.get(i).getId(); //id pagina
                 posPagRam = i; // posicion ram
@@ -108,10 +107,8 @@ public class Monitor {
         // Mete la pagina solicitada a ram:
         ram.set(posPagRam, paginas.get(numPagina));
         paginas.get(numPagina).setR(true);
-        tablaPg.replace(numPagina, ram.size()-1);
+        tablaPg.replace(numPagina, posPagRam);
     }
-    
-    
     
     public synchronized void addPaginaRam(int numPag) {
     	Pagina pagina = paginas.get(numPag);
