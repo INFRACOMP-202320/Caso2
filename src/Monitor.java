@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Clase encargada de intermediar entre el hilo que ejecuta el algoritmo de envejecimiento (la clase Tanenbaum),
+ * el hilo que simula el algoritmo de multiplicación de matrices a través de la lectura del archivo de referencias
+ * (la clase Algoritmo) y las estructuras de datos que simulan los accesos a memoria.
+ */
 public class Monitor {
 
 	private ArrayList<Pagina> paginas;
